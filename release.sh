@@ -78,6 +78,20 @@ LOCAL_HASH=$(sha256sum < dist/MortarCalculator.exe | cut -d' ' -f1)
 
 if [ "$HTTP" = "200" ] && [ "$REMOTE_HASH" = "$LOCAL_HASH" ]; then
     rm -f "$TMP"
+
+    # Refresh the everyday copy so the Desktop shortcut never runs a stale
+    # build. Only the exe is replaced - mortar_position.json lives here too
+    # and must survive, which is the whole reason this folder is separate
+    # from dist/.
+    PLAY_DIR="$HOME/MortarCalculator"
+    if [ -d "$PLAY_DIR" ]; then
+        if cp dist/MortarCalculator.exe "$PLAY_DIR/MortarCalculator.exe" 2>/dev/null; then
+            echo "    updated playing copy: $PLAY_DIR"
+        else
+            echo "    NOTE: could not update $PLAY_DIR (app running?) - close it and re-copy"
+        fi
+    fi
+
     echo
     echo "SUCCESS - verified live. Share this link:"
     echo "  https://github.com/$GH_USER/$REPO/releases/latest"
