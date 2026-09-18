@@ -48,11 +48,26 @@ Heading:  SW
 Coordinate fields are **X (easting) first, Y (northing) second** — the same
 order the game prints a grid reference.
 
+### Shot history
+
+Every calculation is logged to the panel on the right — shot number, range,
+bearing, heading and target coordinates in aligned columns, newest at the top.
+
+- **Scrolls** with the scrollbar or the mouse wheel, and grows taller when you
+  resize the window.
+- **Double-click any past shot** to load its target back into the input boxes —
+  handy for re-ranging a target you've already hit.
+- **Survives restarts**, saved alongside the firing position.
+- Repeating the same target won't add a duplicate row. The log caps at 200
+  shots, oldest dropping off.
+- **Clear history** empties the log; your saved firing position is kept.
+
 ### Where the saved position is stored
 
-`mortar_position.json`, created in the same folder as the .exe. Keep the .exe
-somewhere writable (Desktop or a normal folder is fine — `C:\Program Files`
-would need admin rights). Move the .exe and the saved position stays behind.
+`mortar_position.json`, created in the same folder as the .exe. It holds both
+your firing position and the shot history. Keep the .exe somewhere writable
+(Desktop or a normal folder is fine — `C:\Program Files` would need admin
+rights). Move the .exe and the saved data stays behind.
 
 ## How it works
 

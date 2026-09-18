@@ -61,19 +61,32 @@ GH_USER=$(gh api user --jq '.login')
 REPO=$(basename -s .git "$(git remote get-url origin)")
 TMP="${LOCALAPPDATA:-/tmp}/Temp/relcheck_$$.exe"
 
+# GitHub needs a moment after publishing before /releases/latest/ points at
+# the new tag; without this the check can still be served the previous release.
+sleep 5
+
 HTTP=$(curl -sL -o "$TMP" \
     "https://github.com/$GH_USER/$REPO/releases/latest/download/MortarCalculator.exe" \
     -w '%{http_code}')
 
-if [ "$HTTP" = "200" ] && \
-   [ "$(sha256sum "$TMP" | cut -d' ' -f1)" = "$(sha256sum dist/MortarCalculator.exe | cut -d' ' -f1)" ]; then
+# Hash via stdin, NOT `sha256sum <file>`. GNU coreutils prefixes its output
+# line with a literal backslash when the filename contains one, and
+# $LOCALAPPDATA is C:\Users\... - that stray backslash lands in the captured
+# hash and produces a false mismatch. Reading stdin leaves no filename to escape.
+REMOTE_HASH=$(sha256sum < "$TMP" | cut -d' ' -f1)
+LOCAL_HASH=$(sha256sum < dist/MortarCalculator.exe | cut -d' ' -f1)
+
+if [ "$HTTP" = "200" ] && [ "$REMOTE_HASH" = "$LOCAL_HASH" ]; then
     rm -f "$TMP"
     echo
     echo "SUCCESS - verified live. Share this link:"
     echo "  https://github.com/$GH_USER/$REPO/releases/latest"
 else
     rm -f "$TMP"
-    echo "WARNING: published, but the public download did not verify (HTTP $HTTP)."
+    echo "WARNING: published, but the public download did not verify."
+    echo "  HTTP:   $HTTP (expected 200)"
+    echo "  remote: $REMOTE_HASH"
+    echo "  local:  $LOCAL_HASH"
     echo "Check: gh release view $TAG"
     exit 1
 fi
