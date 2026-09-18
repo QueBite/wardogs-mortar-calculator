@@ -1,0 +1,11 @@
+# Build artefacts - the exe is shipped via GitHub Releases, not committed.
+# A 12 MB binary in git history would bloat every clone forever.
+build/
+dist/
+buildenv/
+*.spec.bak
+__pycache__/
+*.pyc
+
+# Runtime save file - this is personal to each user's machine.
+mortar_position.json
